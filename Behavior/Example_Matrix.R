@@ -6,11 +6,11 @@
 
 ## Source pre_org_behavior ----
 
-source("behavior/pre_org_behavior.R")
+source("Behavior/00_pre_org_behavior.R")
 
 library(tidyverse)
 
-xf <- read_csv("behavior/Post_WL.csv")
+xf <- read_csv("Behavior/Post_WL.csv")
 head(xf)
 
 
@@ -157,5 +157,5 @@ p10=plot_mat0(df4[[5]]) + ggtitle("Control") + xlab("") + ylab("")
 
 ww <-grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10, nrow=2)
 
-ggsave("manuscript/behavior/results_figures/examplematcohort5.png", ww,height=4.5, width = 10.5, dpi = 600)
+# ggsave("manuscript/behavior/results_figures/examplematcohort5.png", ww,height=4.5, width = 10.5, dpi = 600)
 

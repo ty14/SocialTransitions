@@ -5,7 +5,7 @@
 library(tidyverse)
 library(compete)
 
-df <- read_csv("behavior/Pre_WL.csv")
+df <- read_csv("Behavior/Pre_WL.csv")
 
 head(df)
 
@@ -134,7 +134,7 @@ ds.control.long %>%
 ### Body weight.
 
 # import body weight data
-bw <- read_csv("data_raw/groups.csv")
+bw <- read_csv("Behavior/groups.csv")
 bw$pre_idbatchcage <- paste0("Batch",bw$batch,"Cage",bw$precage)
 bw <- bw %>% select(pre_idbatchcage, preid,wt_d4,wt_d8,wt_12)
 

@@ -5,7 +5,7 @@
 library(tidyverse)
 library(compete)
 
-df <- read_csv("behavior/Pre_WL.csv")
+df <- read_csv("Behavior/Pre_WL.csv")
 
 head(df)
 
@@ -387,4 +387,4 @@ left <- grid::textGrob("David's Score", gp = grid::gpar(fontsize = 20), rot = 90
 
 library(gridExtra)
 ds <- grid.arrange(pre,post_reg,pre_con, ncol=1,bottom = bottom, left =left)
-ggsave("manuscript/behavior/results_figures/pre_ds_manuscript.png",ds,height =12, width =10, dpi=600)
+# ggsave("manuscript/behavior/results_figures/pre_ds_manuscript.png",ds,height =12, width =10, dpi=600)

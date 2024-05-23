@@ -4,8 +4,8 @@
 
 # do not need to run these, if already run all code in 01/02.
 
-source("manuscript/behavior/01_pre_organization.R")
-source("manuscript/behavior/02_post_organization.R")
+source("Behavior/01_pre_organization.R")
+source("Behavior/02_post_reorganization.R")
 
 
 ## CAGE OF ORIGIN:
@@ -97,7 +97,7 @@ p1 <- ggplot() +
   ylab("Frequency")+
   theme(text = element_text(size = 15))
 
-ggsave("manuscript/behavior/results_figures/SumRankDiff_supp6B.png",p1,height =5, width =6, dpi=600)
+# ggsave("manuscript/behavior/results_figures/SumRankDiff_supp6B.png",p1,height =5, width =6, dpi=600)
 
 
 ## BODY WEIGHT / PREVIOUS ds:
@@ -121,7 +121,7 @@ dwp <- ggplot(dw2,aes(x=Prerank,y=value,color=Prerank,fill= Prerank))+
                  jitter.height = 0.02, jitter.width = 0.025,  
                  errorbar.draw = TRUE,
                  position = position_dodge(0.85))+
-  ylab("Body Weight (g)") +
+  ylab("Body Mass (g)") +
   xlab("Rank") +
   facet_wrap(~wt)+
   scale_color_manual(values = viridis::viridis(4)) +
@@ -141,7 +141,7 @@ dwp <- ggplot(dw2,aes(x=Prerank,y=value,color=Prerank,fill= Prerank))+
   )
 
 dwp
-ggsave("manuscript/behavior/results_figures/supp_weight.png",dwp,height =5, width =8, dpi=600)
+# ggsave("manuscript/behavior/results_figures/supp_weight.png",dwp,height =5, width =8, dpi=600)
 
 
 
@@ -196,14 +196,31 @@ anova(model4)
 
 # import start end times of pre-reorganization behavior.
 
-source("manuscript/behavior/03b_pre_startend_times.R")
+sends <- read.csv('Behavior/sends.csv')
+
+sends <- sends %>% split(.$batch)
+
+
+## Function to get differences in starts/ends
+get_time_dif<-function(x){
+  # Convert timestamp to proper date-time format
+  timestamp <- as.POSIXct(x$Timestamp, format="%m/%d/%Y %H:%M:%S")
+  # Calculate number of seconds since midnight
+  seconds_since_midnight <- difftime(timestamp, trunc(timestamp, "day"), units="secs")
+  # Compute differences between consecutive elements
+  diffs <- diff(seconds_since_midnight)
+  # Extract every second difference starting from the first
+  even_diffs <- diffs[seq(1, length(diffs), by=2)]
+  return(even_diffs)
+}
+
 
 # from pre_startend_times
 obs.secs <- lapply(lapply(sends,get_time_dif),function(x) as.numeric(sum(x)))
 
 
 # get preorganization behavior data
-df1 <- read_csv("behavior/Pre_WL.csv")
+df1 <- read_csv("Behavior/Pre_WL.csv")
 
 # create list of dataframes for each individual cage
 l1 <- split(df1, df1$pre_batchcage)
@@ -302,7 +319,7 @@ pp2<-ggplot(post.df, aes(x=received1, y=value)) +
 
 library(gridExtra)
 p2 <- grid.arrange(pp1,pp2,nrow=2)
-ggsave("manuscript/behavior/results_figures/supp_aggpredict_sup6A.png",p2,height =6, width =12, dpi=600)
+# ggsave("manuscript/behavior/results_figures/supp_aggpredict_sup6A.png",p2,height =6, width =12, dpi=600)
 
 
 ### total aggression in cage predict final hierarchy position ?
@@ -323,7 +340,7 @@ p3 <- ggplot(post.df, aes(x=rate_totalaggr, y=value)) +
   xlab("Aggression per Cage (per hour)") +
   ylab("Post Reorganization David's Score") +
   stat_smooth(method='lm',se=F) + theme(text = element_text(size = 12))
-ggsave("manuscript/behavior/results_figures/AggCage_supp6C.png",p3,height =3, width =12, dpi=600)
+# ggsave("manuscript/behavior/results_figures/AggCage_supp6C.png",p3,height =3, width =12, dpi=600)
 
 
 # Alphas

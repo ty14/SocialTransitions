@@ -1,12 +1,12 @@
 
 #### David's score graph for manuscript code
 
-source("manuscript/behavior/01_pre_organization.R")
+source("Behavior/01_pre_organization.R")
 
 
 ##### Get Post Data 70 min reorg
 
-df <- read_csv("behavior/Post_WL.csv")
+df <- read_csv("Behavior/Post_WL.csv")
 head(df)
 
 # Fix typo
@@ -28,7 +28,7 @@ df <- df %>% filter(post_batchcage != "Batch 10 Cage 3")
 #   filter(ztime < (4200+min(ztime))) -> xf1
 
 ## use starttime
-zt <- read_csv("behavior/Post_starttimes.csv")
+zt <- read_csv("Behavior/Post_starttimes.csv")
 zts <- zt[zt$times=="startTime",]
 
 df <- df %>% rbind(fix10) #needs to be added
@@ -169,7 +169,7 @@ fig2C <- ggplot(ds.dfdf.x,aes(x=name,y=value,color=group,fill= group))+
         strip.text.x = element_text(size = 15),
         text = element_text(size = 20)) + 
   geom_hline(yintercept = 0, lty=2, lwd=1, color="gray44")
-ggsave("manuscript/behavior/results_figures/final_fig2C_ds.png",fig2C,height =6, width =7, dpi=600)
+# ggsave("manuscript/behavior/results_figures/final_fig2C_ds.png",fig2C,height =6, width =7, dpi=600)
 
 
 ### Fig 2A - David's Scores Across Time.
@@ -353,7 +353,7 @@ fig2A <- ggplot(DFall.summary, aes(x=time,y=median,color=factor(rank))) +
 # ggtitle("Reemergence of Ranks after Social Reorganization") 
 
 
-ggsave("manuscript/behavior/results_figures/final_fig2A.png",fig2A,height =7, width =9, dpi=600)
+# ggsave("manuscript/behavior/results_figures/final_fig2A.png",fig2A,height =7, width =9, dpi=600)
 
 
 
@@ -444,7 +444,7 @@ fig2B <- ggplot(ll.df.sum, aes(contest,median, color = type))+
         legend.position = c(.8,.3),
         text = element_text(size = 20)
   )
-ggsave("manuscript/behavior/results_figures/final_fig2B_lat.png",fig2B,height =7, width =10, dpi=600)
+# ggsave("manuscript/behavior/results_figures/final_fig2B_lat.png",fig2B,height =7, width =10, dpi=600)
 
 
 ### Stats for whether latencies are different between previous social ranks.
@@ -615,7 +615,7 @@ tf <- ggplot(latx.fights,aes(x=type,y=contest,color=type,fill= type))+
         text = element_text(size = 20)
         
   )
-ggsave("manuscript/behavior/results_figures/supp_totalfights.png",tf,height =5, width =5.5, dpi=600)
+# ggsave("manuscript/behavior/results_figures/supp_totalfights.png",tf,height =5, width =5.5, dpi=600)
 
 
 # Model
