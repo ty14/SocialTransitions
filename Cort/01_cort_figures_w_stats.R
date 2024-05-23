@@ -7,7 +7,7 @@ library(car)
 library(tidyverse)
 
 #source
-df <- read_csv("FullCort.csv") 
+df <- read_csv("Cort/FullCort.csv") 
 df<- df %>% dplyr::select(-Well, -final_conc_ng_ul) %>% unique(.)
 
 
@@ -254,7 +254,7 @@ diff <- ggplot(dp, aes(condition1, diff,color =condition1, fill = condition1))+
 
 
 fig2D <- diff + geom_hline(yintercept=0, lty=2, col='gray68')
-ggsave("manuscript/cort/results_figures/final_CORT_fig2D.png", fig2D,height=6, width = 11, dpi = 600)
+# ggsave("manuscript/cort/results_figures/final_CORT_fig2D.png", fig2D,height=6, width = 11, dpi = 600)
 
 
 
