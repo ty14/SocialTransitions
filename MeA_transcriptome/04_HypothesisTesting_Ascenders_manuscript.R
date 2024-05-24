@@ -3,7 +3,7 @@ library(tidyverse)
 
 my_logFC_threshold = 0.2
 
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CSUB.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CSUB.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~unique(.)) %>% 
   # map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
@@ -18,7 +18,7 @@ y3a <- limma_list$asub
 
 
  # ARGs from Tyssowski 2018 - (c)
-pr <- read_csv("manuscript/brain/gene_sets/PrimaryResponseGenes_fromTyssowski.csv")
+pr <- read_csv("MeA_transcriptome/gene_sets/PrimaryResponseGenes_fromTyssowski.csv")
 pr %>%
   as_tibble() %>%
   .$`gene name` -> prx
@@ -31,7 +31,7 @@ prx_names <- c("Primary Response Genes")
 head(y3a)
 
 y3a  %>% 
-  filter(symbol %in% ssx) %>%
+  filter(symbol %in% prx) %>%
   dplyr::select(symbol, logFC, P.Value) %>% 
   dplyr::mutate(Sig = ifelse(P.Value >= 0.05, "N.S.",
                              ifelse(logFC>my_logFC_threshold,"ASC genes","SUB genes"))) %>%
@@ -110,7 +110,7 @@ print(a)
 
 # 2. 
 y3a  %>% 
-  filter(symbol %in% rsx) %>%
+  filter(symbol %in% prx) %>%
   dplyr::select(symbol, logFC, P.Value) %>% 
   dplyr::mutate(Sig = ifelse(P.Value >= 0.05, "N.S.",
                              ifelse(logFC>my_logFC_threshold,"ASC genes","SUB genes"))) %>%
@@ -269,10 +269,10 @@ EnhancedVolcano(df,
         plot.subtitle = element_blank()) -> c
 print(c)
 
-
-##Save plots 
-invisible(dev.off())
-rs_plot <- gridExtra::grid.arrange(c,b,a, ncol = 3)
-ggsave("manuscript/brain/results_figures/HypothesisTesting_ASC.png",rs_plot,height =5, width =15, dpi=600)
+# 
+# ##Save plots 
+# invisible(dev.off())
+# rs_plot <- gridExtra::grid.arrange(c,b,a, ncol = 3)
+# ggsave("manuscript/brain/results_figures/HypothesisTesting_ASC.png",rs_plot,height =5, width =15, dpi=600)
 
 

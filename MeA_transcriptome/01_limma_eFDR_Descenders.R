@@ -12,7 +12,7 @@ library(tidyverse)
 
 
 # Expression values
-dlNorm <-  read.csv("brain/AMY_counts.csv", row.names = 1)
+dlNorm <-  read.csv("MeA_transcriptome/MeA_raw_counts.csv", row.names = 1)
 #remove zeros
 dlNorm <- dlNorm[apply(dlNorm[], 1, function(x) !all(x==0)),]
 #trim sample ids
@@ -20,7 +20,7 @@ colnames(dlNorm)[c(1:67)] <- substr(colnames(dlNorm)[c(1:67)], 7, 13)
 
 #Group traits
 #Getting metadata ready 
-coldata <- read_csv("brain/sample70min_table.csv")
+coldata <- read_csv("MeA_transcriptome/sample70min_table.csv")
 head(coldata)
 str(coldata)
 
@@ -135,7 +135,7 @@ p.dl.limma2 = efit.dl2[["p.value"]]
 p.dl.limma2.t = efit.dl2[["t"]]
 head(p.dl.limma2)
 
-saveRDS(v.dl, "manuscript/brain/results_RDS/limma_vdl_MEA_CDOM.RDS")
+# saveRDS(v.dl, "manuscript/brain/results_RDS/limma_vdl_MEA_CDOM.RDS")
 
 
 
@@ -199,14 +199,6 @@ efit.dl2[["p.value"]] <- q.dl
 row.names(q.dl) <- NULL
 sum(duplicated(row.names(efit.dl2$coefficients)))
 
-#save eFDR values 
-saveRDS(q.dl,("manuscript/brain/results_RDS/limma_vdl_cutoff5_2000_tworand_MEA_CDOM.RDS"))
-
-
-#########  READ IN RESULTS
-q.dl <- readRDS("manuscript/brain/results_RDS/limma_vdl_cutoff5_2000_tworand_MEA_CDOM.RDS")
-
-
 ##### Analysis pulling genes out for each contrast 
 tmp1 <- contrasts.fit(efit.dl2, coef = 1) # 
 tmp2 <- contrasts.fit(efit.dl2, coef = 2) # 
@@ -234,7 +226,7 @@ topTable(tmp3, sort.by = "P", n = Inf) %>%
   dplyr::select(symbol,logFC,P.Value,adj.P.Val) -> limma_list$cdom
 
 
-saveRDS(limma_list,"manuscript/brain/results_RDS/limma_MEA_CDOM.RDS")
+# saveRDS(limma_list,"manuscript/brain/results_RDS/limma_MEA_CDOM.RDS")
 
 
 #quick look at number of genes

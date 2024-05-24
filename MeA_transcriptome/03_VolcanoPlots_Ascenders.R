@@ -19,7 +19,7 @@ grcm38 # mouse genes
 
 my_logFC_threshold = 0.2
 
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CSUB.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CSUB.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~unique(.)) %>% 
   # map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
@@ -89,7 +89,6 @@ vp_csub <- ggplot(data = dc,
 vp_csub
 
 
- ggsave("manuscript/brain/results_figures/vplot_csub.png",vp_csub,height =5.5, width =6.5, dpi=600)
 
 ### Number of genes in each cut off 
 #0.2
@@ -163,7 +162,7 @@ vp_casc <- ggplot(data = dc,
 
 vp_casc
 
-ggsave("manuscript/brain/results_figures/vplot_casc.png",vp_casc,height =5.5, width =6.5, dpi=600)
+
 
 ### Number of genes in each cut off 
 #0.2
@@ -242,7 +241,6 @@ vp_as <- ggplot(data = dc,
 
 vp_as
 
-ggsave("manuscript/brain/results_figures/vplot_as.png",vp_as,height =5.5, width =6.5, dpi=600)
 
 ### Number of genes in each cut off 
 #0.2

@@ -18,7 +18,7 @@ grcm38 # mouse genes
 #Descenders 
 my_logFC_threshold = 0.2
 
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CDOM.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CDOM.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -55,7 +55,6 @@ gettop10GO(y3a, my_showCategory ) %>%
 
 rbind(top10go1,top10go2,top10go3) -> top10_GOterms
 
-write.csv(top10_GOterms,"manuscript/brain/results_tables/topBP_GOterms_MeA_CDOM.csv", row.names = F)
 
 #Ascenders 
 
@@ -95,4 +94,4 @@ gettop10GO(y3a, my_showCategory ) %>%
 
 rbind(top10go1,top10go2,top10go3) -> top10_GOterms
 
-write.csv(top10_GOterms,"manuscript/brain/results_tables/topBP_GOterms_MeA_CSUB.csv", row.names = F)
+
