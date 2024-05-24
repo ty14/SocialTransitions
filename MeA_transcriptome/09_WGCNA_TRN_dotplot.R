@@ -2,9 +2,9 @@ library(WGCNA)
 library(tidyverse)
 
 set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
-MEs <- readRDS("manuscript/brain/results_RDS/WGCNA_trans_MEs_Power4.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
+MEs <- readRDS("MeA_transcriptome/results_RDS/WGCNA_trans_MEs_Power4.RDS")
 
 MEs 
 
@@ -43,7 +43,7 @@ all_dendtree <- dendextend::plot_horiz.dendrogram(dend, side = F, lwd = 2)
 MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
 
 # get linear model data 
-coldata <- read_csv("brain/sample70min_table.csv")
+coldata <- read_csv("MeA_transcriptome/sample70min_table.csv")
 head(coldata)
 str(coldata)
 
@@ -115,7 +115,7 @@ lm_result_list %>%
 
 
 
-# saveRDS(d,"manuscript/brain/results_RDS/WGCNA_TRNS_lm_result_USE.RDS")
+
 
 head(d)
 colnames(d)
@@ -160,17 +160,6 @@ rev(levels(as.factor(heatmap_df$module))) -> xx
 xx[xx != "grey"] -> y_limit
 xx[xx != "AggRec70min"] -> y_limit
 
-# heatmap_dfx %>% 
-# as_tibble() %>% 
-# select(module, count) %>% 
-# distinct() %>% 
-# mutate(module = factor(module)) %>% 
-# arrange(desc(count)) %>% 
-# filter(module!="grey") %>% 
-# filter(module!="AggRec70min") %>%
-# .$module -> my_module_level
-
-
 
 str(heatmap_df)
 
@@ -212,7 +201,3 @@ trn_dot <- heatmap_df %>%
 
 trn_dot 
 
-ggsave("manuscript/brain/results_figures/trn_all_dot.png", trn_dot, width = 7, height = 6)
-
-
-dev.off()

@@ -18,7 +18,7 @@ grcm38 # mouse genes
 
 
 # Expression values
-dlNorm <-  read.csv("brain/AMY_counts.csv", row.names = 1)
+dlNorm <-  read.csv("MeA_transcriptome/MeA_raw_counts.csv", row.names = 1)
 #remove zeros
 dlNorm <- dlNorm[apply(dlNorm[], 1, function(x) !all(x==0)),]
 #trim sample ids
@@ -26,7 +26,7 @@ colnames(dlNorm)[c(1:67)] <- substr(colnames(dlNorm)[c(1:67)], 7, 13)
 
 #Group traits
 #Getting metadata ready 
-coldata <- read.csv("manuscript/brain/results_tables/coldata.csv", row.names = 1)
+coldata <- read.csv("MeA_transcriptome/results_tables/coldata.csv", row.names = 1)
 
 #check before normalizing 
 dlNorm<- dlNorm[, rownames(coldata)]
@@ -44,8 +44,7 @@ dim(d0)
 rownames(d0) <- rownames(dlNorm)
 d0 <- calcNormFactors(d0)
 
-#won used 10 in 90% of samples for brain paper, which is what tutorial suggest. 
-#in liver paper she did 50 in 90% samples 
+# used 10 in 90% of samples for brain paper, which is what tutorial suggest. 
 cutoff <- 10
 drop <- which(apply(cpm(d0), 1, max) < cutoff)
 dge.dl <- d0[-drop,]
@@ -104,8 +103,7 @@ amy1 <- amy %>%
 #make everything numeric 
 amy1[1:11] <- lapply(amy1[1:11], as.numeric)
 
-#saving to use for other WGCNA analysis 
-write.csv(amy1, "manuscript/brain/results_tables/TraitsforWGCNA.csv", row.names = T)
+
 
 
 sampleTree = hclust(dist(datExpr), method = "average");
@@ -142,8 +140,8 @@ plotDendroAndColors(sampleTree2, traitColors,
                     main = "AMY dendrogram and trait heatmap(all samples)")
 
 collectGarbage()
-#not going to filter because ascenders rreally are not grouping anyways?
-saveRDS(datExpr,"manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS")
+#not going to filter because ascenders really are not grouping anyways?
+# saveRDS(datExpr,"manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS")
 # saveRDS(datExprx,"manuscript/brain/results_RDS/WGCNA_datExpr_ALL_outlierRemoved.RDS")
 
 
@@ -189,7 +187,7 @@ WGCNA_get_net <- function(my_tissue = "MEA70min",
                           my_TOMType ="signed", 
                           my_networkType = "signed hybrid"){
   
-  x <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS") 
+  x <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_ALL10.RDS") 
   set.seed(312)
   net = blockwiseModules(x, 
                          power = my_power,
@@ -204,14 +202,14 @@ WGCNA_get_net <- function(my_tissue = "MEA70min",
                          verbose = 3)
   
   
-  saveRDS(net, "manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
+  saveRDS(net, "MeA_transcriptome/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
   
 }
 
 WGCNA_get_net("MEA70min", 4, "signed", "signed hybrid")
 # ========================================================================================
 
-net <- readRDS(glue::glue("manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS"))
+net <- readRDS(glue::glue("MeA_transcriptome/results_RDS/WGCNA_net_ALL_Power4_10.RDS"))
 
 # open a graphics window
 sizeGrWindow(12, 9)
@@ -220,22 +218,22 @@ mergedColors = labels2colors(net$colors)
 
 # Plot the dendrogram and the module colors underneath
 
-dev.off() # make sure you do this before AND after 
-png(file = "manuscript/brain/results_figures/cluster_dendo_ALL_Power4_10.png",
-    width=600, height=350)
-plotDendroAndColors(net$dendrograms[[2]], mergedColors[net$blockGenes[[2]]],
-                    "Module colors",
-                    dendroLabels = FALSE, hang = 0.03,
-                    addGuide = TRUE, guideHang = 0.05, 
-                    main = "MEA ALL Power4 - cutoff 10")
-
-dev.off()
-
-MEs = net$MEs
+# dev.off() # make sure you do this before AND after 
+# png(file = "manuscript/brain/results_figures/cluster_dendo_ALL_Power4_10.png",
+#     width=600, height=350)
+# plotDendroAndColors(net$dendrograms[[2]], mergedColors[net$blockGenes[[2]]],
+#                     "Module colors",
+#                     dendroLabels = FALSE, hang = 0.03,
+#                     addGuide = TRUE, guideHang = 0.05, 
+#                     main = "MEA ALL Power4 - cutoff 10")
+# 
+# dev.off()
+# 
+# MEs = net$MEs
 ##################################
 set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_ALL10.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
 dim(datExpr)
 
 #PART 1
@@ -274,8 +272,6 @@ MEs = orderMEs(MEs0)
 moduleTraitCor = cor(MEs, datTraits, use = "p");
 moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples);
 
-saveRDS(MEs,"manuscript/brain/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
-
 #make corr matrix for paper
 datTraitsx <- datTraits %>% select(SocialCondition = condition2)
 
@@ -292,9 +288,9 @@ names(MEs) <- gsub("ME", "", names(MEs))
  sizeGrWindow(20,12)
 
 dev.off() # make sure you do this before AND after
-
-png(file = "manuscript/brain/results_figures/module_trait_ALL_Power4_cut10.png",
-    width=1000, height=2600, res = 300)
+# 
+# png(file = "manuscript/brain/results_figures/module_trait_ALL_Power4_cut10.png",
+#     width=1000, height=2600, res = 300)
 
 # Will display correlations and their p-values
 textMatrix =  paste(signif(moduleTraitCor, 2), "\n(",
@@ -370,12 +366,12 @@ wgcna_whole %>%
 wgcna_whole %>%
   left_join(geneTraitSignificance %>% rownames_to_column("ensgene")) -> wgcna_all
 
-saveRDS(wgcna_all, "manuscript/brain/results_RDS/WGCNA_ALL_WGCNA_MM_GS_all_Power4.RDS")
+# saveRDS(wgcna_all, "manuscript/brain/results_RDS/WGCNA_ALL_WGCNA_MM_GS_all_Power4.RDS")
 
 ##boxplot of modules 
 
-MEs <- readRDS("manuscript/brain/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
-df <- read.csv("manuscript/brain/results_tables/coldata.csv", row.names = 1)
+MEs <- readRDS("MeA_transcriptome/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
+df <- read.csv("MeA_transcriptome/results_tables/coldata.csv", row.names = 1)
 ME_df <-MEs%>% data.frame() %>% 
   tibble::rownames_to_column(var = "SampleID") %>%
   pivot_longer(cols = 2:27, names_to = "Module") %>% 
@@ -412,10 +408,6 @@ p1<- ME_df %>%
 p1
 
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_eigengene_boxplotPower4.png",
-       p1,
-       height = 18, width = 22, dpi = 300)
-
 
 ME_df %>%
   ggplot(aes(post_Ncort, value, color = status, fill = status))+
@@ -429,9 +421,7 @@ ME_df %>%
        y = "Module eigengene") + theme_classic() -> p2
 p2
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_eigengene_CORTcorrelation_Power4.png",
-       p2,
-       height = 18, width = 22, dpi = 300)
+
 
 
 p1sub <- ME_df %>% filter(status %in% c("CSUB", "ASC", "SUB")) %>% 
@@ -450,9 +440,6 @@ p1sub <- ME_df %>% filter(status %in% c("CSUB", "ASC", "SUB")) %>%
 p1sub
 
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_CSUB_eigengene_boxplotPower4.png",
-       p1sub,
-       height = 18, width = 22, dpi = 300)
 
 p1dom <- ME_df %>% filter(status %in% c("CDOM", "DES", "DOM")) %>% 
   ggplot(aes(status, value, fill = status, color = status))+
@@ -470,9 +457,7 @@ p1dom <- ME_df %>% filter(status %in% c("CDOM", "DES", "DOM")) %>%
 p1dom
 
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_CDOM_eigengene_boxplotPower4.png",
-       p1dom,
-       height = 18, width = 22, dpi = 300)
+
 
 
 ME_df %>% filter(status %in% c("CSUB", "ASC", "SUB")) %>% 
@@ -487,9 +472,7 @@ ME_df %>% filter(status %in% c("CSUB", "ASC", "SUB")) %>%
        y = "Module eigengene") + theme_classic() -> p2sub
 p2sub
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_CSUB_eigengene_CORTcorrelation_Power4.png",
-       p2sub,
-       height = 18, width = 22, dpi = 300)
+
 
 ME_df %>% filter(status %in% c("CDOM", "DES", "DOM")) %>% 
   ggplot(aes(post_Ncort, value, color = status, fill = status))+
@@ -503,9 +486,6 @@ ME_df %>% filter(status %in% c("CDOM", "DES", "DOM")) %>%
        y = "Module eigengene") + theme_classic() -> p2dom
 p2dom
 
-ggsave(filename = "manuscript/brain/results_figures/ALL_CDOM_eigengene_CORTcorrelation_Power4.png",
-       p2dom,
-       height = 18, width = 22, dpi = 300)
 
 
 # Module of interest via significance 
@@ -601,31 +581,10 @@ hubgenes_df %>%
   dplyr::select(-ensgene, -chr) %>% 
   head(15)
 
-write.csv(hubgenes_df, "manuscript/brain/results_tables/WCGNA_ALL_hubgene_list_Power4.csv", row.names = F)
-
-
-ADJ=abs(cor(datExpr,use="p"))^6
-Alldegrees1=intramodularConnectivity(ADJ, moduleColors) 
-
-Alldegrees1 %>% 
-  rownames_to_column('ensgene') %>% 
-  left_join(grcm38 %>% dplyr::select(ensgene,symbol)) -> kIN_df
-
-xx <- cbind(ensgene = colnames(datExpr), module = moduleColors) %>% 
-  as.tibble()
-
-
-kIN_df %>% 
-  left_join(xx) -> kIN_df
-
-saveRDS(kIN_df,"manuscript/brain/results_RDS/kIN/ALL_kIN_dataframe_Power4.RDS")
 
 
 ### GO-Terms==============================================
 set.seed(312)
-# module_list = c( 'brown', 'pink', 'royalblue', 'purple', 'lightyellow', 'cyan', 'magenta', "red","salmon","lightcyan", "black", "tan")
-# datExpr <-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL.RDS") 
-# net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_ALL_Power5.RDS")
 
 moduleLabels = net$colors
 moduleColors = labels2colors(net$colors)
@@ -687,435 +646,12 @@ for(i in 1:length(allcolors)){
 
 WGCNA_GOs %>% 
   do.call(rbind,.) -> wgcna_all_gos
+# 
+# write.csv(wgcna_all_gos, 
+#           "manuscript/brain/results_tables/WGCNA_ALL_all_gos_catogeryBP_Power4.csv",
+#           row.names = F)
 
-write.csv(wgcna_all_gos, 
-          "manuscript/brain/results_tables/WGCNA_ALL_all_gos_catogeryBP_Power4.csv",
-          row.names = F)
 
 
-
-#######linearmodel 
-
-# linear model
-set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
-MEs <- readRDS("manuscript/brain/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
-
-moduleLabels = net$colors
-moduleColors = labels2colors(net$colors)
-# Recalculate MEs with color labels
-MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
-
-coldata <- read.csv("manuscript/brain/results_tables/coldata.csv", row.names = 1)
-
-coldata$condition1 <- factor(coldata$condition1, levels= c("CDOM","CSUB","DOM", "SUB","DES","ASC"))
-
-
-MEs00 <- orderMEs(MEs0) %>% 
-  rownames_to_column("SampleID")
-
-colnames(MEs00)
-#transition modules 
-pink <- MEs00[,c(1,17)] %>% as.data.frame()
-brown <- MEs00[,c(1,13)] %>% as.data.frame()
-#ASC
-royalblue <- MEs00[,c(1,18)] %>% as.data.frame()
-darkgrey <- MEs00[,c(1,14)] %>% as.data.frame()
-#DES/CSUB
-darkgreen<- MEs00[,c(1,21)] %>% as.data.frame()
-dturq<- MEs00[,c(1,25)] %>% as.data.frame()
-#cdom/csub
-black <- MEs00[,c(1,10)] %>% as.data.frame()
-lightgreen <- MEs00[,c(1,26)] %>% as.data.frame()
-salmon <- MEs00[,c(1,19)] %>% as.data.frame()
-# same
-blue <- MEs00[,c(1,7)] %>% as.data.frame()
-green <- MEs00[,c(1,11)] %>% as.data.frame()
-turq <- MEs00[,c(1,20)] %>% as.data.frame()
-yellow <- MEs00[,c(1,6)] %>% as.data.frame()
-
-grey60 <- MEs00[,c(1,5)] %>% as.data.frame()
-red <- MEs00[,c(1,9)] %>% as.data.frame()
-magenta <- MEs00[,c(1,15)] %>% as.data.frame()
-orange <- MEs00[,c(1,12)] %>% as.data.frame()
-
-library(lme4)
-library(lmerTest)
-
-pink%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEpink~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEpink ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEpink~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEpink ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEpink~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-
-brown%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEbrown~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEbrown ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEbrown~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEbrown ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEbrown~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-royalblue%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEroyalblue~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEroyalblue ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEroyalblue~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEroyalblue ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEroyalblue~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-
-darkgrey%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEdarkgrey~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEdarkgrey ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEdarkgrey~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEdarkgrey ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEdarkgrey~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-##################
-
-darkgreen %>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEdarkgreen~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEdarkgreen ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEdarkgreen~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEdarkgreen~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEdarkgreen~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-dturq%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEdarkturquoise~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEdarkturquoise ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEdarkturquoise~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEdarkturquoise ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEdarkturquoise~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-################
-
-black%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEblack~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEblack ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEblack~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEblack ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEblack~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-
-lightgreen%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MElightgreen~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MElightgreen ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MElightgreen~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MElightgreen ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MElightgreen~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-salmon%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEsalmon~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEsalmon ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEsalmon~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEsalmon ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEsalmon~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-###########
-
-blue%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEblue~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEblue ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEblue~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEblue ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEblue~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-
-green%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEgreen~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEgreen ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEgreen~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEgreen ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEgreen~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-yellow%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEyellow~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEyellow ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEyellow~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEyellow ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEyellow~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-###########
-
-orange%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEorange~ condition1 +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEorange ~ condition2 +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEorange~ condition3 +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEorange ~ condition4 +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEorange~ condition5 +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
-
-
-########### statistics with cort 
-
-# linear model
-set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
-MEs <- readRDS("manuscript/brain/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
-
-moduleLabels = net$colors
-moduleColors = labels2colors(net$colors)
-# Recalculate MEs with color labels
-MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
-
-coldata <- read.csv("manuscript/brain/results_tables/coldata.csv", row.names = 1)
-
-MEs00 <- orderMEs(MEs0) %>% 
-  rownames_to_column("SampleID")
-
-colnames(MEs00)
-mb <- MEs00[,c(1,22)] %>% as.data.frame()
-
-mb%>%  left_join(coldata) %>% 
-  mutate(batch = as.factor(batch)) %>% 
-  mutate_if(is.numeric,scale) %>% 
-  mutate(condition2 = factor(condition1,levels= c("CSUB","CDOM","DOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition3 = factor(condition1,levels= c("DOM","CSUB","CDOM", "SUB","DES","ASC"))) %>% 
-  mutate(condition4 = factor(condition1,levels= c("SUB","CSUB","CDOM", "DOM","DES","ASC"))) %>%
-  mutate(condition5 = factor(condition1,levels= c("DES","CSUB","CDOM", "SUB","DOM","ASC"))) %>%
-  relocate(condition1,condition2,condition3,condition4,condition5, batch, post_Ncort, Postrank, Postds, Preds, AggGiven70min, AggRec70min ) %>% 
-  dplyr::select(-SampleID, -post_idbatch, -mean_con_ng_ul, -pre_idbatch, -pre_idbatchcage,
-                -time, -Prerank, -condition, -wt_d4, -wt_d8, -wt_12, -region)-> ME_df
-
-colnames(ME_df)
-
-lmer(MEcyan~ condition1*post_Ncort +(1|batch) , data = ME_df) -> mod1
-summary(mod1)
-lmer(MEcyan ~ condition2*post_Ncort +(1|batch) , data = ME_df) -> mod2
-summary(mod2)
-lmer(MEcyan~ condition3*post_Ncort +(1|batch) , data = ME_df) -> mod3
-summary(mod3)
-lmer(MEdarkgreen ~ condition4*post_Ncort +(1|batch) , data = ME_df) -> mod4
-summary(mod4)
-lmer(MEdarkgreen~ condition5*post_Ncort +(1|batch) , data = ME_df) -> mod5
-summary(mod5)
 
 

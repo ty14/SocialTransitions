@@ -1,13 +1,13 @@
 #boxplots for 8 transition genes 
 
-source("manuscript/brain/06_TransitionGenes_withControls.R")
+source("MeA_transcriptome/05_TransitionGenes_withControls.R")
 
 trans_down <- ctrans_down$.
 trans_up <- ctrans_up$.
 trans <- c(trans_up, trans_down)
 
 #DES 
-ex <- readRDS("manuscript/brain/results_RDS/limma_vdl_MeA_CDOM.RDS")
+ex <- readRDS("MeA_transcriptome/results_RDS/limma_vdl_MeA_CDOM.RDS")
 head(ex)
 
 x <- ex$E %>% as.data.frame() %>% as.data.frame() %>% rownames_to_column('ensgene') %>% 
@@ -46,10 +46,8 @@ p1 <- ggplot(p, aes(group,value, color = group, fill = group))+
   theme(legend.position = "none", text =element_text(size = 15))
 p1
 
-ggsave("manuscript/brain/results_figures/DES_8genes_boxplots.png", width =18 , height = 2.75, dpi = 300)
-
 #DES 
-ex <- readRDS("manuscript/brain/results_RDS/limma_vdl_MeA_CSUB.RDS")
+ex <- readRDS("MeA_transcriptome/results_RDS/limma_vdl_MeA_CSUB.RDS")
 head(ex)
 
 x <- ex$E %>% as.data.frame() %>% as.data.frame() %>% rownames_to_column('ensgene') %>% 
@@ -84,5 +82,3 @@ p1 <- ggplot(p, aes(group,value, color = group, fill = group))+
   theme(legend.position = "none", text =element_text(size = 15))
 
 p1
-
-ggsave("manuscript/brain/results_figures/ASC_8genes_boxplots.png", width =18 , height = 2.75, dpi = 300)

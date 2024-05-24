@@ -20,7 +20,7 @@ grcm38 # mouse genes
 my_logFC_threshold = 0.2
 
 #descenders
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CDOM.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CDOM.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -32,7 +32,7 @@ cdes <-limma_list$cdes
 cdom <- limma_list$cdom
 
 #Ascenders
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CSUB.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CSUB.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 

@@ -18,7 +18,7 @@ grcm38 # mouse genes
 #Descenders 
 my_logFC_threshold = 0.2
 
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CDOM.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CDOM.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -31,7 +31,7 @@ cdes <- limma_list$cdes
 
 cdom[cdom$symbol %in%chol,]
 
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CSUB.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CSUB.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -70,7 +70,7 @@ col2 <- c("Lhx8", "Slc18a3", "Slc10a4", "Gbx1", "Chat", "Chrm2", "Slc5a7", "Ache
 dd  %>% filter(symbol %in% col2) %>% arrange(logFC)
 as %>%  filter(symbol %in% col2) %>% arrange(logFC)
 
-ex <- readRDS("manuscript/brain/results_RDS/limma_vdl_MeA_CDOM.RDS")
+ex <- readRDS("MeA_transcriptome/results_RDS/limma_vdl_MeA_CDOM.RDS")
 head(ex)
 
 x <- ex$E %>% as.data.frame() %>% as.data.frame() %>% rownames_to_column('ensgene') %>% 
@@ -108,11 +108,3 @@ p1 <- ggplot(p, aes(group,value, color = group, fill = group))+
   theme_bw()+
   theme(legend.position = "none", text = element_text(size = 15))
 p1
-
-ggsave("manuscript/brain/results_figures/DES_ACH_boxplots.png", width =18 , height = 2.5, dpi = 600)
-
-
-
-dd %>% 
-as %>%  filter(symbol %in% c('Osgin2', 'Tac1', 'Baz1a', 'Mbnl2',
-                             '4931440P22Rik', 'Mpp7'))

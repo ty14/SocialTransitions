@@ -2,9 +2,9 @@ library(WGCNA)
 library(tidyverse)
 
 set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_ALL10.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
-MEs <- readRDS("manuscript/brain/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_ALL10.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_ALL_Power4_10.RDS")
+MEs <- readRDS("MeA_transcriptome/results_RDS/WGCNA_ALL_MEs_Power4.RDS")
 
 MEsx <- MEs[,c(1:25)]
 
@@ -37,7 +37,7 @@ all_dendtree <- dendextend::plot_horiz.dendrogram(dend, side = F, lwd = 2)
 # Recalculate MEs with color labels
 MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
 
-coldata <- read_csv("manuscript/brain/results_tables/coldata.csv")
+coldata <- read_csv("MeA_transcriptome/results_tables/coldata.csv")
 # 
 # coldata <- coldata %>%
 #   filter(condition1 != "ASC") %>%
@@ -99,12 +99,8 @@ lm_result_list %>%
   filter(.,module != "grey") %>% filter(., module != "AggRec70min") -> lm_result_all
 
 
- # saveRDS(lm_result_all,"manuscript/brain/results_RDS/WGCNA_CDOMinALLA_lm_result_all.RDS")
-# saveRDS(lm_result_all,"manuscript/brain/results_RDS/WGCNA_CSUBinALLA_lm_result_all.RDS")
-# 
 
 d <- lm_result_all
-# d <- readRDS("manuscript/brain/results_RDS/WGCNA_CDOMinALLA_lm_result_all.RDS")
 
 head(d)
 colnames(d)
@@ -208,87 +204,4 @@ dom <- heatmap_df %>%
         text = element_text(size = 15))
  dom
 
-
- ggsave("manuscript/brain/results_figures/sub_all_dot.png", dom, width = 9, height = 6.4)
-
-
-dev.off()
-
-
-
-a <- readRDS("manuscript/brain/results_RDS/WGCNA_CSUBinALLA_lm_result_all.RDS")
-
-moduleLabels = net$colors
-moduleColors = labels2colors(net$colors)
-MEs = net$MEs;
-geneTree = net$dendrograms[[1]];
-
-moduleNumber = length(unique(moduleColors))
-
-modNames = substring(names(MEs), 3)
-heatmap_df <- a %>% 
-  mutate(my_alpha = ifelse(`Pr(>|t|)` < 0.05, 1, 0)) %>% 
-  mutate(my_alpha2 = Estimate )
-
-moduleColors %>% 
-  table() %>% 
-  as.data.frame() %>% arrange(Freq)  -> modnum 
-colnames(modnum) <- c("module","count")
-
-heatmap_df %>% as_tibble() %>% 
-  left_join(modnum) -> heatmap_dfx
-
-
-
-heatmap_df %>% 
-  filter(my_alpha > 0.95) %>% 
-  .$Estimate %>% as.numeric(.) %>% 
-  abs() %>% 
-  max() -> my_limit
-rev(levels(as.factor(heatmap_df$module))) -> xx
-xx[xx != "grey"] -> y_limit
-xx[xx != "AggRec70min"] -> y_limit
-
-heatmap_dfx %>% 
-  as_tibble() %>% 
-  select(module, count) %>% 
-  distinct() %>% 
-  # mutate(module = factor(module)) %>% 
-  arrange(desc(count)) %>% 
-  filter(module!="grey") %>% 
-  filter(module!="AggRec70min") %>%
-  .$module -> my_module_level
-
-
-vv = length(my_module_level)-1
-vlines = c(1:vv)+0.495
-hlines = c(1:2)+0.51
-
-str(heatmap_df)
-
-heatmap_df$Estimate <- as.numeric(heatmap_df$Estimate)
-
-color_above <- heatmap_df$`Pr(>|t|)` < 0.05
-color_below <- heatmap_df$`Pr(>|t|)` > 0.05
-
-heatmap_df$color <- ifelse(heatmap_df$`Pr(>|t|)`< color_above,heatmap_df$`Pr(>|t|)`,.055)
-heatmap_df$key <- factor(heatmap_df$key, levels = c("ASC-SUB", "ASC-CSUB", "SUB-CSUB"))
-heatmap_df$key2 <- ifelse(heatmap_df$key == "ASC-SUB", "ASC vs. SUB", heatmap_df$key)
-heatmap_df$key2 <- ifelse(heatmap_df$key == "ASC-CSUB", "ASC vs. CSUB", heatmap_df$key2)
-heatmap_df$key2 <- ifelse(heatmap_df$key == "SUB-CSUB", "SUB vs. CSUB", heatmap_df$key2)
-heatmap_df$key2 <- factor(heatmap_df$key2, levels = c("ASC vs. SUB", "ASC vs. CSUB", "SUB vs. CSUB"))
-
-heatmap_df %>% 
-  ggplot(aes(y = module, x = Estimate, color =color)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
-  geom_point(size = 3)+
-  facet_wrap(~key2)+
-  labs(y="", color = "p-value")+
-  scale_color_continuous(low = "red", high = "lightgray", breaks = c(0.01, 0.02,0.03,0.04, 0.05))+
-  ylim(-2,2) +  theme_bw()+
-  geom_errorbar(aes(xmin = Estimate-`Std. Error`, xmax = Estimate+`Std. Error`),width = 0.2)+
-  theme(text = element_text(size = 15))
-  
-
-# dev.off()
 

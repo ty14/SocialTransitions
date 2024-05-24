@@ -20,7 +20,7 @@ grcm38 # mouse genes
 my_logFC_threshold = 0.2
 
 #descenders
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CDOM.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CDOM.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -30,7 +30,7 @@ limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CDOM.RDS") %>%
 dd <- limma_list$desdom
 
 #Ascenders
-limma_list<- readRDS("manuscript/brain/results_RDS/limma_MEA_CSUB.RDS") %>% 
+limma_list<- readRDS("MeA_transcriptome/results_RDS/limma_MEA_CSUB.RDS") %>% 
   map(~distinct(.)) %>% 
   map(~filter(.,abs(logFC) >= my_logFC_threshold)) %>%
   map(~filter(.,P.Value <0.05)) %>% 
@@ -89,7 +89,7 @@ trans_down <- td_down %>% full_join(ta_down) %>% mutate(contrast = "trans vs. sa
 
 trans_all <- trans_up %>% rbind(trans_down)
 #save in tables 
-write.csv(trans_all,"manuscript/brain/results_tables/TransitionGenes_withoutControls.csv", row.names = F)
+# write.csv(trans_all,"manuscript/brain/results_tables/TransitionGenes_withoutControls.csv", row.names = F)
 
 
 # genes that go in opposite directions. 
@@ -120,8 +120,6 @@ gettop10GO(tdd_go, my_showCategory) %>%
 
 
 rbind(top10go1,top10go2) -> top10_GOterms
-
-write.csv(top10_GOterms,"manuscript/brain/results_tables/topBP_GOterms_Trans_withoutControls.csv", row.names = F)
 
 # view
 top10_GOterms$Description[1:5]

@@ -18,7 +18,7 @@ grcm38 # mouse genes
 
 
 # Expression values
-dlNorm <-  read.csv("brain/AMY_counts.csv", row.names = 1)
+dlNorm <-  read.csv("MeA_transcriptome/AMY_raw_counts.csv", row.names = 1)
 #remove zeros
 dlNorm <- dlNorm[apply(dlNorm[], 1, function(x) !all(x==0)),]
 #trim sample ids
@@ -26,7 +26,7 @@ colnames(dlNorm)[c(1:67)] <- substr(colnames(dlNorm)[c(1:67)], 7, 13)
 
 #Group traits
 #Getting metadata ready 
-coldata <- read_csv("brain/sample70min_table.csv")
+coldata <- read_csv("MeA_transcriptome/sample70min_table.csv")
 head(coldata)
 str(coldata)
 
@@ -78,8 +78,8 @@ dim(d0)
 rownames(d0) <- rownames(dlNorm)
 d0 <- calcNormFactors(d0)
 
-#won used 10 in 90% of samples for brain paper, which is what tutorial suggest. 
-#in liver paper she did 50 in 90% samples 
+#used 10 in 90% of samples for brain paper, which is what tutorial suggest. 
+
 cutoff <- 10
 drop <- which(apply(cpm(d0), 1, max) < cutoff)
 dge.dl <- d0[-drop,]
@@ -87,7 +87,6 @@ dim(dge.dl)
 #13198    40 samples = 10 
 
 # Now take out groups that you want
-#DOMs first 
 dge.dl$samples$group
 
 dge.dl_dom <- dge.dl[, dge.dl$samples$group %in% c("DOM", "SUB", "TRANS")]
@@ -180,9 +179,9 @@ plotDendroAndColors(sampleTree2, traitColors,
                     main = "AMY dendrogram and trait heatmap(all samples)")
 
 collectGarbage()
-#not going to filter because ascenders rreally are not grouping anyways?
-saveRDS(datExpr,"manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS")
-saveRDS(datExprx,"manuscript/brain/results_RDS/WGCNA_datExpr_trans_outlierRemoved.RDS")
+
+saveRDS(datExpr,"MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS")
+
 
 
 # Run WGCNA for each dom, descender, controls 
@@ -226,7 +225,7 @@ WGCNA_get_net <- function(my_tissue = "MEA70min",
                           my_TOMType ="signed", 
                           my_networkType = "signed hybrid"){
   
-  x <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS") 
+  x <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS") 
   set.seed(312)
   net = blockwiseModules(x, 
                          power = my_power,
@@ -241,14 +240,14 @@ WGCNA_get_net <- function(my_tissue = "MEA70min",
                          verbose = 3)
   
   
-  saveRDS(net, "manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
+  saveRDS(net, "MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
   
 }
 
 WGCNA_get_net("MEA70min", 4, "signed", "signed hybrid")
 # ========================================================================================
 
-net <- readRDS(glue::glue("manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS"))
+net <- readRDS(glue::glue("MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS"))
 
 # open a graphics window
 sizeGrWindow(12, 9)
@@ -272,8 +271,8 @@ MEs = net$MEs
 
 ########## STEP 2
 set.seed(312)
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
 dim(datExpr)
 
 #PART 1
@@ -309,7 +308,6 @@ MEs = orderMEs(MEs0)
 moduleTraitCor = cor(MEs, datTraits, use = "p");
 moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples);
 
-saveRDS(MEs,"manuscript/brain/results_RDS/WGCNA_trans_MEs_Power4.RDS")
 # make corr matrix for paper
 datTraitsx <- datTraits %>% select(SocialCondition = condition2)
 
@@ -329,8 +327,8 @@ names(MEs) <- gsub("ME", "", names(MEs))
 
 dev.off() # make sure you do this before AND after
 
-png(file = "manuscript/brain/results_figures/module_trait_trans_Power4.png",
-    width=1000, height=2600, res = 300)
+# png(file = "manuscript/brain/results_figures/module_trait_trans_Power4.png",
+#     width=1000, height=2600, res = 300)
 
 # Will display correlations and their p-values
 textMatrix =  paste(signif(moduleTraitCor, 2), "\n(",
@@ -406,7 +404,7 @@ wgcna_whole %>%
 wgcna_whole %>%
   left_join(geneTraitSignificance %>% rownames_to_column("ensgene")) -> wgcna_all
 
-saveRDS(wgcna_all, "manuscript/brain/results_RDS/WGCNA_trans_WGCNA_MM_GS_all_Power4.RDS")
+# saveRDS(wgcna_all, "manuscript/brain/results_RDS/WGCNA_trans_WGCNA_MM_GS_all_Power4.RDS")
 
 
 # Module of interest via significance 
@@ -485,24 +483,8 @@ hubgenes_df %>%
   dplyr::select(-ensgene, -chr) %>% 
   head(15)
 
-write.csv(hubgenes_df, "manuscript/brain/results_tables/WCGNA_trans_hubgene_list_Power4.csv", row.names = F)
+# write.csv(hubgenes_df, "manuscript/brain/results_tables/WCGNA_trans_hubgene_list_Power4.csv", row.names = F)
 
-
-ADJ=abs(cor(datExpr,use="p"))^6
-Alldegrees1=intramodularConnectivity(ADJ, moduleColors) 
-
-Alldegrees1 %>% 
-  rownames_to_column('ensgene') %>% 
-  left_join(grcm38 %>% dplyr::select(ensgene,symbol)) -> kIN_df
-
-xx <- cbind(ensgene = colnames(datExpr), module = moduleColors) %>% 
-  as.tibble()
-
-
-kIN_df %>% 
-  left_join(xx) -> kIN_df
-
-saveRDS(kIN_df,"manuscript/brain/results_RDS/kIN/Trans_kIN_dataframe_Power4.RDS")
 
 
 dev.off()
@@ -537,9 +519,6 @@ p1<- ME_df %>%
 
 p1
 
-ggsave(filename = "manuscript/brain/results_figures/trans_eigengene_boxplotPower4.png",
-       p1,
-       height = 18, width = 22, dpi = 300)
 
 
 ### Regression ==============================================
@@ -601,7 +580,7 @@ lm_result_list %>%
   filter(.,module != "grey") %>% format(., scientific = F) -> lm_result_all
 
 
-saveRDS(lm_result_all,"manuscript/brain/results_RDS/WGCNA_trans_lm_result_Power4.RDS")
+# saveRDS(lm_result_all,"manuscript/brain/results_RDS/WGCNA_trans_lm_result_Power4.RDS")
 
 
 # red, greenyellow, brown: trans
@@ -614,8 +593,8 @@ saveRDS(lm_result_all,"manuscript/brain/results_RDS/WGCNA_trans_lm_result_Power4
 ### GO-Terms==============================================
 set.seed(312)
 module_list = c( 'brown', 'red', 'cyan', "grey60", "yellow")
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
 
 moduleLabels = net$colors
 moduleColors = labels2colors(net$colors)
@@ -678,16 +657,14 @@ for(i in 1:length(allcolors)){
 WGCNA_GOs %>% 
   do.call(rbind,.) -> wgcna_all_gos
 
-write.csv(wgcna_all_gos, 
-          "manuscript/brain/results_tables/WGCNA_trans_all_gos_catogeryBP_cutoff100.csv",
-          row.names = F)
+
 
 
 
 #########module number 
 
-datExpr <- readRDS("manuscript/brain/results_RDS/WGCNA_datExpr_trans.RDS") 
-net <- readRDS("manuscript/brain/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
+datExpr <- readRDS("MeA_transcriptome/results_RDS/WGCNA_datExpr_trans.RDS") 
+net <- readRDS("MeA_transcriptome/results_RDS/WGCNA_net_trans_Power4_cutoff100.RDS")
 
 moduleLabels = net$colors
 moduleColors = labels2colors(net$colors)
@@ -742,68 +719,4 @@ temp_p
 
 
 
-
-
-##hub genes: 
-hub <- read_csv("manuscript/brain/results_tables/WCGNA_trans_hubgene_list_Power4.csv")
-head(hub)
-
-source("manuscript/brain/06_TransitionGenes_withControls.R")
-
-DEG <- dd %>% as_tibble() %>% .$symbol
-DEG_a <- as  %>% as_tibble() %>% .$symbol
-
-
-
-
-
-
-
-# top 5 
-r %>% filter(symbol %in% chol)
-yr <- hub %>% filter(moduleName == "yellow") # 110
-yx <- yr %>% filter(symbol %in% DEG) # 60 DEG 
-yxx <- yr %>% filter(symbol %in% DEG_a ) # 33 DEG
-
-
-gr <- hub %>% filter(moduleName == "grey60") # 28
-gx <- gr %>% filter(symbol %in% DEG) # 7 DEG 
-gxx <- gr %>% filter(symbol %in% DEG_a ) # 11 DEG
-
-
-lgr <- hub %>% filter(moduleName == "lightgreen") # 44
-lgx <- lgr %>% filter(symbol %in% DEG) # 30 DEG 
-lgxx <- lgr %>% filter(symbol %in% DEG_a ) # 1 DEG
-
-
-lyr <- hub %>% filter(moduleName == "yellow") # 4
-lyx <- lyr %>% filter(symbol %in% DEG) # 4 DEG 
-lyxx <- lyr %>% filter(symbol %in% DEG_a ) # 1 DEG
-
-
-
-br <- hub %>% filter(moduleName == "brown") # 28
-brx <- br %>% filter(symbol %in% DEG) # 7 DEG 
-brxx <-br %>% filter(symbol %in% DEG_a) # 6 DEG
-brx$symbol %in% brxx$symbol
-
-b <- hub %>% filter(moduleName == "black") # 76
-bx <- b %>% filter(symbol %in% DEG) # 64 DEG 
-bxx <- b %>% filter(symbol %in% DEG_a ) # 1 DEG
-
-
-c <- hub %>% filter(moduleName == "cyan") # 21
-cx <- c %>% filter(symbol %in% DEG) # 10 DEG 
-cxx <- c %>% filter(symbol %in% trans_all$symbol) # 4 DEG
-
-
-
-mid <- hub %>% filter(moduleName == "midnightblue") # 4
-mx <- mid %>% filter(symbol %in% DEG) # 4 DEG 
-mxx <- mid%>% filter(symbol %in% DEG_a ) # 1 DEG
-trans_all
-
-rb <- hub %>% filter(moduleName == "royalblue") # 4
-rbx <- rb %>% filter(symbol %in% DEG) # 4 DEG 
-rbxx <- rb %>% filter(symbol %in% trans_all$symbol) # 1 DEG
 
